@@ -26,13 +26,13 @@ export const Navbar = () => {
       transition={{ duration: 0.6 }}
       className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-background/80 border-b border-border/50"
     >
-      <nav className="container flex items-center justify-between h-20">
-        <Link to="/" className="flex items-center gap-2">
-          <img src={logo} alt="Miswak Dental Hospital logo" width={40} height={40} className="h-10 w-10 object-contain" />
-          <div className="leading-tight">
-            <div className="font-serif text-lg text-primary">Miswak</div>
-            <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Dental & Implant Centre</div>
-          </div>
+      <nav className="container flex items-center justify-between h-24">
+        <Link to="/" className="flex items-center">
+          <img
+            src={logo}
+            alt="Miswak Dental Hospital logo"
+            className="h-16 md:h-20 w-auto object-contain"
+          />
         </Link>
         <div className="hidden md:flex items-center gap-8">
           {links.map((l) => (

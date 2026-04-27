@@ -2,7 +2,14 @@
 // We now route the chat-booking request to our own Express API.
 const API_BASE = `${import.meta.env.BASE_URL}api`.replace(/\/+/g, "/");
 
-async function invoke(name: string, opts: { body?: unknown } = {}) {
+export type InvokeResult<T> =
+  | { data: T; error: null }
+  | { data: null; error: Error };
+
+async function invoke<T = unknown>(
+  name: string,
+  opts: { body?: unknown } = {},
+): Promise<InvokeResult<T>> {
   try {
     const res = await fetch(`${API_BASE}/${name}`, {
       method: "POST",
@@ -16,9 +23,9 @@ async function invoke(name: string, opts: { body?: unknown } = {}) {
         error: new Error(`Request failed: ${res.status} ${text}`),
       };
     }
-    const data = await res.json();
-    return { data, error: null as Error | null };
-  } catch (e: any) {
+    const data = (await res.json()) as T;
+    return { data, error: null };
+  } catch (e) {
     return { data: null, error: e instanceof Error ? e : new Error(String(e)) };
   }
 }

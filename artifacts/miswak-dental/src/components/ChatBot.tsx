@@ -35,13 +35,18 @@ export const ChatBot = () => {
     setInput("");
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke("chat-booking", {
+      const { data, error } = await supabase.functions.invoke<{
+        reply?: string;
+        savedId?: string | null;
+      }>("chat-booking", {
         body: { messages: next },
       });
       if (error) throw error;
-      const reply = (data as any)?.reply ?? "Sorry, something went wrong. Please call us at 040-23346260.";
+      const reply =
+        data?.reply ??
+        "Sorry, something went wrong. Please call us at 040-23346260.";
       setMessages((m) => [...m, { role: "assistant", content: reply }]);
-    } catch (e) {
+    } catch {
       setMessages((m) => [
         ...m,
         {

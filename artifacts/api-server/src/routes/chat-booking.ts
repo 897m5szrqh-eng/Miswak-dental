@@ -1,6 +1,15 @@
-// @ts-ignore - Replit AI Integrations env vars are set at runtime
-import { Router, type IRouter, type Request, type Response } from "express";
-import { GoogleGenAI } from "@google/genai";
+import {
+  Router,
+  type IRouter,
+  type Request,
+  type Response,
+} from "express";
+import {
+  GoogleGenAI,
+  type Content,
+  type FunctionDeclaration,
+  type Part,
+} from "@google/genai";
 import { db, appointmentRequestsTable } from "@workspace/db";
 
 const router: IRouter = Router();
@@ -26,7 +35,7 @@ Once you have name + phone + preferred date + reason, call the **save_appointmen
 
 Style: short, kind, professional. Use simple sentences. Never invent prices. For medical advice, gently say the dentist will assess in person.`;
 
-const SAVE_TOOL_DECLARATION = {
+const SAVE_TOOL_DECLARATION: FunctionDeclaration = {
   name: "save_appointment_request",
   description:
     "Save the patient's appointment request to the hospital's system. Call only once you have name, phone, preferred date and reason for visit.",
@@ -51,32 +60,61 @@ const SAVE_TOOL_DECLARATION = {
     },
     required: ["name", "phone", "preferred_date", "treatment"],
   },
-} as any;
+};
 
 type ChatMsg = { role: "user" | "assistant"; content: string };
 
-function toGeminiContents(messages: ChatMsg[]) {
+type SaveArgs = {
+  name?: unknown;
+  phone?: unknown;
+  email?: unknown;
+  preferred_date?: unknown;
+  treatment?: unknown;
+  notes?: unknown;
+};
+
+function toGeminiContents(messages: ChatMsg[]): Content[] {
   return messages.map((m) => ({
     role: m.role === "assistant" ? "model" : "user",
     parts: [{ text: String(m.content ?? "") }],
   }));
 }
 
+function joinTextParts(parts: Part[]): string {
+  return parts
+    .map((p) => p.text ?? "")
+    .filter(Boolean)
+    .join("");
+}
+
+function toStringOrNull(v: unknown, max: number): string | null {
+  if (v === undefined || v === null || v === "") return null;
+  return String(v).slice(0, max);
+}
+
 router.post("/chat-booking", async (req: Request, res: Response) => {
   try {
     const messages: ChatMsg[] = Array.isArray(req.body?.messages)
-      ? req.body.messages
+      ? (req.body.messages as ChatMsg[])
       : [];
 
     if (!Array.isArray(messages)) {
       return res.status(400).json({ error: "messages must be an array" });
     }
 
+    const apiKey = process.env["AI_INTEGRATIONS_GEMINI_API_KEY"];
+    const baseUrl = process.env["AI_INTEGRATIONS_GEMINI_BASE_URL"];
+    if (!apiKey || !baseUrl) {
+      return res
+        .status(500)
+        .json({ error: "Gemini integration is not configured" });
+    }
+
     const ai = new GoogleGenAI({
-      apiKey: process.env["AI_INTEGRATIONS_GEMINI_API_KEY"]!,
+      apiKey,
       httpOptions: {
         apiVersion: "",
-        baseUrl: process.env["AI_INTEGRATIONS_GEMINI_BASE_URL"]!,
+        baseUrl,
       },
     });
 
@@ -90,33 +128,27 @@ router.post("/chat-booking", async (req: Request, res: Response) => {
       },
     });
 
-    const candidate = first.candidates?.[0];
-    const parts = candidate?.content?.parts ?? [];
-    const functionCallPart = parts.find((p: any) => p.functionCall);
-    let assistantText: string =
-      parts
-        .map((p: any) => p.text ?? "")
-        .filter(Boolean)
-        .join("") || "";
-
+    const parts: Part[] = first.candidates?.[0]?.content?.parts ?? [];
+    const functionCallPart = parts.find((p) => p.functionCall);
+    let assistantText = joinTextParts(parts);
     let savedId: string | null = null;
 
-    if (functionCallPart && (functionCallPart as any).functionCall) {
-      const call = (functionCallPart as any).functionCall;
-      const args = (call.args ?? {}) as Record<string, any>;
+    if (functionCallPart?.functionCall) {
+      const call = functionCallPart.functionCall;
+      const args = (call.args ?? {}) as SaveArgs;
+      const name = toStringOrNull(args.name, 200) ?? "";
+      const phone = toStringOrNull(args.phone, 50) ?? "";
 
       try {
         const inserted = await db
           .insert(appointmentRequestsTable)
           .values({
-            name: String(args.name ?? "").slice(0, 200),
-            phone: String(args.phone ?? "").slice(0, 50),
-            email: args.email ? String(args.email).slice(0, 200) : null,
-            preferredDate: args.preferred_date
-              ? String(args.preferred_date).slice(0, 200)
-              : null,
-            treatment: args.treatment ? String(args.treatment).slice(0, 300) : null,
-            notes: args.notes ? String(args.notes).slice(0, 1000) : null,
+            name,
+            phone,
+            email: toStringOrNull(args.email, 200),
+            preferredDate: toStringOrNull(args.preferred_date, 200),
+            treatment: toStringOrNull(args.treatment, 300),
+            notes: toStringOrNull(args.notes, 1000),
             transcript: messages,
           })
           .returning({ id: appointmentRequestsTable.id });
@@ -125,47 +157,47 @@ router.post("/chat-booking", async (req: Request, res: Response) => {
         req.log.error({ err: e }, "Failed to insert appointment request");
       }
 
+      const followupContents: Content[] = [
+        ...toGeminiContents(messages),
+        {
+          role: "model",
+          parts: [
+            {
+              functionCall: {
+                name: call.name,
+                args: call.args,
+              },
+            },
+          ],
+        },
+        {
+          role: "user",
+          parts: [
+            {
+              functionResponse: {
+                name: call.name,
+                response: {
+                  status: savedId ? "saved" : "error",
+                  id: savedId,
+                },
+              },
+            },
+          ],
+        },
+      ];
+
       const followup = await ai.models.generateContent({
         model: "gemini-2.5-flash",
-        contents: [
-          ...toGeminiContents(messages),
-          {
-            role: "model",
-            parts: [
-              {
-                functionCall: {
-                  name: call.name,
-                  args: call.args,
-                },
-              },
-            ],
-          } as any,
-          {
-            role: "user",
-            parts: [
-              {
-                functionResponse: {
-                  name: call.name,
-                  response: {
-                    status: savedId ? "saved" : "error",
-                    id: savedId,
-                  },
-                },
-              },
-            ],
-          } as any,
-        ],
+        contents: followupContents,
         config: {
           systemInstruction: SYSTEM_PROMPT,
           maxOutputTokens: 8192,
         },
       });
 
-      const followupParts = followup.candidates?.[0]?.content?.parts ?? [];
-      const followupText = followupParts
-        .map((p: any) => p.text ?? "")
-        .filter(Boolean)
-        .join("");
+      const followupParts: Part[] =
+        followup.candidates?.[0]?.content?.parts ?? [];
+      const followupText = joinTextParts(followupParts);
       assistantText =
         followupText ||
         "Your appointment request has been received. Our team will call you shortly to confirm.";
@@ -176,12 +208,10 @@ router.post("/chat-booking", async (req: Request, res: Response) => {
     }
 
     return res.json({ reply: assistantText, savedId });
-  } catch (e: any) {
+  } catch (e) {
     req.log.error({ err: e }, "chat-booking failed");
-    return res.status(500).json({
-      error: "Chat error",
-      detail: String(e?.message ?? e),
-    });
+    const detail = e instanceof Error ? e.message : String(e);
+    return res.status(500).json({ error: "Chat error", detail });
   }
 });
 

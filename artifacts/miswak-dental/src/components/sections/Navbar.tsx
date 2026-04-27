@@ -3,7 +3,7 @@ import { Phone, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import logo from "@/assets/miswak-logo.png";
+import logo from "@/assets/miswak-logo.svg";
 
 const links = [
   { label: "Home", to: "/" },

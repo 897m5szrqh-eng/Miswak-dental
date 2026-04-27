@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import logo from "@/assets/miswak-logo.png";
+import logo from "@/assets/miswak-logo.svg";
 import { contactInfo } from "@/data/contact";
 
 export const Footer = () => (

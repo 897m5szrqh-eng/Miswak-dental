@@ -7,10 +7,15 @@ import { Phone, Mail, MapPin, Clock, AlertCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { contactInfo } from "@/data/contact";
+import {
+  AppointmentPicker,
+  type AppointmentSelection,
+} from "@/components/sections/AppointmentPicker";
 
 const Contact = () => {
   const { toast } = useToast();
   const [submitting, setSubmitting] = useState(false);
+  const [selection, setSelection] = useState<AppointmentSelection | null>(null);
 
   useEffect(() => {
     document.title = "Contact & Book Appointment — Miswak Dental";
@@ -21,8 +26,15 @@ const Contact = () => {
     e.preventDefault();
     setSubmitting(true);
     setTimeout(() => {
-      toast({ title: "Thanks for submitting!", description: "Our team will get back to you shortly." });
+      const desc = selection
+        ? `${selection.doctor.name} · ${selection.date.toLocaleDateString(
+            undefined,
+            { weekday: "short", month: "short", day: "numeric" },
+          )} at ${selection.time}. Our team will call to confirm.`
+        : "Our team will get back to you shortly.";
+      toast({ title: "Thanks for submitting!", description: desc });
       (e.target as HTMLFormElement).reset();
+      setSelection(null);
       setSubmitting(false);
     }, 600);
   };
@@ -51,10 +63,39 @@ const Contact = () => {
         </div>
       </section>
 
+      <section className="pt-12 md:pt-16">
+        <div className="container">
+          <AppointmentPicker
+            selection={selection}
+            onSelectionChange={setSelection}
+          />
+        </div>
+      </section>
+
       <section className="py-20 md:py-28">
         <div className="container grid lg:grid-cols-12 gap-12">
           {/* Form */}
-          <form onSubmit={onSubmit} className="lg:col-span-7 bg-card border border-border rounded-[2rem] p-8 md:p-12 shadow-card space-y-5">
+          <form
+            id="appointment-form"
+            onSubmit={onSubmit}
+            className="lg:col-span-7 bg-card border border-border rounded-[2rem] p-8 md:p-12 shadow-card space-y-5"
+          >
+            {selection && (
+              <div className="rounded-2xl bg-secondary/50 px-5 py-4 text-sm">
+                <div className="text-xs uppercase tracking-widest text-accent mb-1">
+                  Booking with
+                </div>
+                <div className="font-serif text-base text-primary">
+                  {selection.doctor.name} ·{" "}
+                  {selection.date.toLocaleDateString(undefined, {
+                    weekday: "short",
+                    month: "short",
+                    day: "numeric",
+                  })}{" "}
+                  at {selection.time}
+                </div>
+              </div>
+            )}
             <div className="grid sm:grid-cols-2 gap-5">
               <div>
                 <label htmlFor="firstName" className="text-xs uppercase tracking-widest text-muted-foreground">First Name</label>

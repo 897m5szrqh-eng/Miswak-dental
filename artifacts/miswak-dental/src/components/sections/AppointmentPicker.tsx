@@ -188,8 +188,8 @@ export const AppointmentPicker = ({ selection, onSelectionChange }: Props) => {
                   disabled={(d) =>
                     d < today || d > maxDate || !isDoctorAvailableOn(doctor, d)
                   }
-                  fromDate={today}
-                  toDate={maxDate}
+                  startMonth={today}
+                  endMonth={maxDate}
                 />
               </div>
             </div>

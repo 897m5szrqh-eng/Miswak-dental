@@ -37,13 +37,25 @@ jobs:
         run: pnpm install --no-frozen-lockfile
 
       - name: Build miswak-dental
-        run: cd artifacts/miswak-dental && pnpm run build
+        working-directory: ./artifacts/miswak-dental
+        run: pnpm run build
         env:
           PORT: 3000
           BASE_PATH: /Miswak-dental/
+          NODE_ENV: production
 
-      - name: List build output
-        run: ls -la artifacts/miswak-dental/dist/
+      - name: Debug - List all directories
+        run: |
+          echo "Listing artifacts/miswak-dental:"
+          ls -la artifacts/miswak-dental/
+          echo "Checking for dist directory:"
+          if [ -d "artifacts/miswak-dental/dist" ]; then
+            ls -la artifacts/miswak-dental/dist/
+          else
+            echo "dist directory not found!"
+          fi
+          echo "Searching for build output:"
+          find artifacts/miswak-dental -type d -name "dist" -o -name "build" -o -name "public"
 
       - name: Setup Pages
         uses: actions/configure-pages@v4

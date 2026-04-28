@@ -40,18 +40,6 @@ jobs:
         run: |
           cd artifacts/miswak-dental
           PORT=3000 BASE_PATH=/Miswak-dental/ NODE_ENV=production pnpm run build
-          ls -la
-          if [ -d "dist" ]; then
-            echo "✓ dist directory created"
-            ls -la dist/
-            if [ -d "dist/public" ]; then
-              echo "✓ dist/public directory exists"
-              ls -la dist/public/
-            fi
-          else
-            echo "✗ dist directory NOT created"
-            echo "Build may have failed!"
-          fi
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -59,7 +47,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './artifacts/miswak-dental/dist/public'
+          path: './artifacts/miswak-dental/dist'
 
   deploy:
     environment:

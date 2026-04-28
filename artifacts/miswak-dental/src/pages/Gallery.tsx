@@ -4,6 +4,7 @@ import { Navbar } from "@/components/sections/Navbar";
 import { Footer } from "@/components/sections/Footer";
 import { CTA } from "@/components/sections/CTA";
 import { galleryItems } from "@/data/gallery";
+import { getAssetUrl } from "@/lib/utils";
 
 const Gallery = () => {
   useEffect(() => {
@@ -46,7 +47,7 @@ const Gallery = () => {
                 className="group relative overflow-hidden rounded-2xl shadow-card bg-card aspect-[4/3]"
               >
                 <img
-                  src={t.img}
+                  src={getAssetUrl(t.img)}
                   alt={t.title}
                   loading="lazy"
                   className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"

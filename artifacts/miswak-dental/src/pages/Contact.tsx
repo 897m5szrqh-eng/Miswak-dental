@@ -22,21 +22,57 @@ const Contact = () => {
     window.scrollTo(0, 0);
   }, []);
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const form = e.currentTarget;
+    const data = new FormData(form);
     setSubmitting(true);
-    setTimeout(() => {
+
+    const apiBase = `${import.meta.env.BASE_URL}api`.replace(/\/+/g, "/");
+    const payload = {
+      firstName: String(data.get("firstName") ?? ""),
+      lastName: String(data.get("lastName") ?? ""),
+      email: String(data.get("email") ?? ""),
+      phone: String(data.get("phone") ?? ""),
+      message: String(data.get("message") ?? ""),
+      doctor: selection?.doctor.name ?? null,
+      preferredDate:
+        selection?.date.toLocaleDateString(undefined, {
+          weekday: "long",
+          month: "long",
+          day: "numeric",
+          year: "numeric",
+        }) ?? null,
+      time: selection?.time ?? null,
+    };
+
+    let ok = false;
+    try {
+      const res = await fetch(`${apiBase}/appointment-request`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      ok = res.ok;
+    } catch {
+      ok = false;
+    }
+
+    if (ok) {
       const desc = selection
-        ? `${selection.doctor.name} · ${selection.date.toLocaleDateString(
-            undefined,
-            { weekday: "short", month: "short", day: "numeric" },
-          )} at ${selection.time}. Our team will call to confirm.`
-        : "Our team will get back to you shortly.";
-      toast({ title: "Thanks for submitting!", description: desc });
-      (e.target as HTMLFormElement).reset();
+        ? `${selection.doctor.name} on ${payload.preferredDate ?? ""} at ${selection.time}. Our team will call to confirm.`
+        : "Our team will call you shortly to confirm your appointment.";
+      toast({ title: "Appointment request received!", description: desc });
+      form.reset();
       setSelection(null);
-      setSubmitting(false);
-    }, 600);
+    } else {
+      toast({
+        title: "Something went wrong",
+        description: "Please try again or call us at 040-23346260.",
+        variant: "destructive",
+      });
+    }
+    setSubmitting(false);
   };
 
   const info = [
@@ -99,26 +135,26 @@ const Contact = () => {
             <div className="grid sm:grid-cols-2 gap-5">
               <div>
                 <label htmlFor="firstName" className="text-xs uppercase tracking-widest text-muted-foreground">First Name</label>
-                <Input id="firstName" required className="mt-2 h-12 rounded-xl" />
+                <Input id="firstName" name="firstName" required className="mt-2 h-12 rounded-xl" />
               </div>
               <div>
                 <label htmlFor="lastName" className="text-xs uppercase tracking-widest text-muted-foreground">Last Name</label>
-                <Input id="lastName" required className="mt-2 h-12 rounded-xl" />
+                <Input id="lastName" name="lastName" required className="mt-2 h-12 rounded-xl" />
               </div>
             </div>
             <div className="grid sm:grid-cols-2 gap-5">
               <div>
                 <label htmlFor="email" className="text-xs uppercase tracking-widest text-muted-foreground">Email</label>
-                <Input id="email" type="email" required className="mt-2 h-12 rounded-xl" />
+                <Input id="email" name="email" type="email" required className="mt-2 h-12 rounded-xl" />
               </div>
               <div>
                 <label htmlFor="phone" className="text-xs uppercase tracking-widest text-muted-foreground">Phone</label>
-                <Input id="phone" type="tel" required className="mt-2 h-12 rounded-xl" />
+                <Input id="phone" name="phone" type="tel" required className="mt-2 h-12 rounded-xl" />
               </div>
             </div>
             <div>
               <label htmlFor="message" className="text-xs uppercase tracking-widest text-muted-foreground">Message</label>
-              <Textarea id="message" rows={5} className="mt-2 rounded-xl" placeholder="Tell us how we can help..." />
+              <Textarea id="message" name="message" rows={5} className="mt-2 rounded-xl" placeholder="Tell us how we can help..." />
             </div>
             <Button type="submit" variant="hero" size="xl" disabled={submitting} className="w-full sm:w-auto">
               {submitting ? "Submitting..." : "Submit"}

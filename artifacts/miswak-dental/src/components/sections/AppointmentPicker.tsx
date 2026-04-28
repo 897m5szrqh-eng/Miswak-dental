@@ -1,8 +1,15 @@
 import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calendar as CalendarIcon, Check, Clock, UserRound } from "lucide-react";
+import { Calendar as CalendarIcon, Clock, UserRound } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   doctors,
   getBookedSlots,
@@ -21,8 +28,6 @@ type Props = {
   selection: AppointmentSelection | null;
   onSelectionChange: (s: AppointmentSelection | null) => void;
 };
-
-const STEP_LABELS = ["Doctor", "Date", "Time"] as const;
 
 function formatLongDate(date: Date): string {
   return date.toLocaleDateString(undefined, {
@@ -75,16 +80,15 @@ export const AppointmentPicker = ({ selection, onSelectionChange }: Props) => {
     return getBookedSlots(doctor.id, date);
   }, [doctor, date]);
 
-  const currentStep = !doctor ? 0 : !date ? 1 : !time ? 2 : 3;
-
-  const pickDoctor = (d: Doctor) => {
-    setDoctorId(d.id);
-    if (date && !isDoctorAvailableOn(d, date)) {
+  const pickDoctor = (id: string) => {
+    setDoctorId(id);
+    const next = doctors.find((d) => d.id === id) ?? null;
+    if (next && date && !isDoctorAvailableOn(next, date)) {
       setDate(undefined);
       setTime(null);
       onSelectionChange(null);
-    } else if (date && time) {
-      onSelectionChange({ doctor: d, date, time });
+    } else if (next && date && time) {
+      onSelectionChange({ doctor: next, date, time });
     }
   };
 
@@ -110,7 +114,7 @@ export const AppointmentPicker = ({ selection, onSelectionChange }: Props) => {
 
   return (
     <div className="bg-card border border-border rounded-[2rem] p-6 md:p-10 shadow-card">
-      <div className="flex items-center justify-between gap-4 mb-6">
+      <div className="flex items-center justify-between gap-4 mb-8">
         <div>
           <div className="text-xs uppercase tracking-[0.25em] text-accent mb-2">
             Choose Your Visit
@@ -130,82 +134,30 @@ export const AppointmentPicker = ({ selection, onSelectionChange }: Props) => {
         )}
       </div>
 
-      {/* Stepper */}
-      <ol className="flex items-center gap-2 mb-8">
-        {STEP_LABELS.map((label, i) => {
-          const done = i < currentStep;
-          const active = i === currentStep;
-          return (
-            <li key={label} className="flex items-center gap-2 flex-1">
-              <div
-                className={`h-7 w-7 rounded-full grid place-items-center text-xs font-medium shrink-0 transition-smooth ${
-                  done
-                    ? "bg-accent text-accent-foreground"
-                    : active
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-secondary text-muted-foreground"
-                }`}
-              >
-                {done ? <Check className="h-3.5 w-3.5" /> : i + 1}
-              </div>
-              <span
-                className={`text-xs uppercase tracking-widest ${
-                  active || done ? "text-primary" : "text-muted-foreground"
-                }`}
-              >
-                {label}
-              </span>
-              {i < STEP_LABELS.length - 1 && (
-                <span className="hidden sm:block h-px flex-1 bg-border" />
-              )}
-            </li>
-          );
-        })}
-      </ol>
-
-      {/* Step 1 — Doctor grid */}
+      {/* Step 1 — Doctor dropdown */}
       <section aria-label="Select a doctor">
-        <div className="text-xs uppercase tracking-widest text-muted-foreground mb-3 flex items-center gap-2">
+        <label
+          htmlFor="doctor-select"
+          className="text-xs uppercase tracking-widest text-muted-foreground mb-3 flex items-center gap-2"
+        >
           <UserRound className="h-3.5 w-3.5" /> Select a doctor
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-          {doctors.map((d) => {
-            const selected = d.id === doctorId;
-            return (
-              <button
-                key={d.id}
-                type="button"
-                onClick={() => pickDoctor(d)}
-                aria-pressed={selected}
-                className={`group text-left rounded-2xl p-3 border transition-smooth ${
-                  selected
-                    ? "border-accent bg-accent/5 shadow-card"
-                    : "border-border bg-secondary/30 hover:border-accent/40 hover:bg-secondary/60"
-                }`}
-              >
-                <div className="relative aspect-square rounded-xl overflow-hidden bg-muted mb-3">
-                  <img
-                    src={d.image}
-                    alt={d.name}
-                    loading="lazy"
-                    className="h-full w-full object-cover group-hover:scale-105 transition-smooth duration-500"
-                  />
-                  {selected && (
-                    <div className="absolute top-2 right-2 h-6 w-6 rounded-full bg-accent text-accent-foreground grid place-items-center">
-                      <Check className="h-3.5 w-3.5" />
-                    </div>
-                  )}
-                </div>
-                <div className="font-serif text-sm text-primary leading-tight">
-                  {d.name}
-                </div>
-                <div className="mt-1 text-[10px] uppercase tracking-widest text-muted-foreground">
-                  {d.role}
-                </div>
-              </button>
-            );
-          })}
-        </div>
+        </label>
+        <Select value={doctorId ?? undefined} onValueChange={pickDoctor}>
+          <SelectTrigger
+            id="doctor-select"
+            className="h-12 rounded-xl bg-secondary/40 border-border text-base"
+          >
+            <SelectValue placeholder="Choose a doctor…" />
+          </SelectTrigger>
+          <SelectContent>
+            {doctors.map((d) => (
+              <SelectItem key={d.id} value={d.id}>
+                <span className="font-medium">{d.name}</span>
+                <span className="text-muted-foreground"> · {d.role}</span>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </section>
 
       {/* Step 2 — Calendar */}

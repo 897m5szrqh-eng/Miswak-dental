@@ -35,7 +35,7 @@ const Gallery = () => {
 
       <section className="py-20">
         <div className="container">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {galleryItems.map((t, i) => (
               <motion.figure
                 key={t.title}
@@ -43,7 +43,7 @@ const Gallery = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ duration: 0.5, delay: (i % 4) * 0.05 }}
-                className="group relative overflow-hidden rounded-2xl shadow-card bg-card aspect-square"
+                className="group relative overflow-hidden rounded-2xl shadow-card bg-card aspect-[4/3]"
               >
                 <img
                   src={t.img}

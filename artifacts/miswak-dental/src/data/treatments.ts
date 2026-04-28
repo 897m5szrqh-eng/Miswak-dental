@@ -10,7 +10,7 @@ export const treatments: Treatment[] = [
   {
     slug: "advance-gum-treatment",
     title: "Advance Gum Treatment",
-    img: "/treatments/gum.jpg",
+    img: `${import.meta.env.BASE_URL}treatments/gum.jpg`,
     short: "Gum disease begins with bacterial growth that inflames the gingiva.",
     long: [
       "Gum disease — also known as periodontal disease — begins with bacterial growth in the mouth. Localised inflammation of the gingiva is initiated by bacteria in the dental plaque, a microbial biofilm that forms on teeth and gums.",
@@ -20,7 +20,7 @@ export const treatments: Treatment[] = [
   {
     slug: "braces-and-aligners",
     title: "Braces & Aligners",
-    img: "/treatments/braces.jpg",
+    img: `${import.meta.env.BASE_URL}treatments/braces.jpg`,
     short: "Appliances that align and straighten teeth into the corrected position.",
     long: [
       "Dental braces are appliances used to align or straighten the teeth and guide them into the corrected position.",
@@ -30,7 +30,7 @@ export const treatments: Treatment[] = [
   {
     slug: "bridges-and-crowns",
     title: "Bridges & Crowns",
-    img: "/treatments/crowns.jpg",
+    img: `${import.meta.env.BASE_URL}treatments/crowns.jpg`,
     short: "Restore the shape, size and appearance of damaged or missing teeth.",
     long: [
       "Dental crowns are placed on the tooth to restore its shape, size, and appearance. If the major part of the tooth is missing, a crown is the best solution for it.",
@@ -40,7 +40,7 @@ export const treatments: Treatment[] = [
   {
     slug: "clear-aligners",
     title: "Clear Aligners",
-    img: "/treatments/aligners.jpg",
+    img: `${import.meta.env.BASE_URL}treatments/aligners.jpg`,
     short: "Transparent trays that straighten teeth without metal wires or brackets.",
     long: [
       "Clear aligners are transparent trays made of special material which are used to straighten teeth just like braces. They use gentle and constant force to move the teeth into the required position without the hassles of metal wires and brackets.",
@@ -50,7 +50,7 @@ export const treatments: Treatment[] = [
   {
     slug: "dental-filling",
     title: "Dental Filling",
-    img: "/treatments/filling.jpg",
+    img: `${import.meta.env.BASE_URL}treatments/filling.jpg`,
     short: "Restoring missing tooth structure caused by decay or trauma.",
     long: [
       "Dental filling is a treatment modality to restore missing tooth structure which could have been a result of decay or trauma. Decay makes the tooth hollow.",
@@ -60,7 +60,7 @@ export const treatments: Treatment[] = [
   {
     slug: "dental-implants",
     title: "Dental Implants",
-    img: "/treatments/implants.jpg",
+    img: `${import.meta.env.BASE_URL}treatments/implants.jpg`,
     short: "The most ideal long-term solution for replacing missing teeth.",
     long: [
       "Dental implants are the most popular and ideal solution for replacing missing tooth/teeth. They have definitely changed the course of dentistry in the last quarter of a century or so.",
@@ -70,7 +70,7 @@ export const treatments: Treatment[] = [
   {
     slug: "dentures",
     title: "Dentures",
-    img: "/treatments/dentures.jpg",
+    img: `${import.meta.env.BASE_URL}treatments/dentures.jpg`,
     short: "Removable replacements for missing teeth that restore everyday function.",
     long: [
       "Dentures are removable appliances which are used as a replacement for missing teeth and tissues. They are the artificial teeth which enable the normal functioning of the human mouth.",
@@ -80,7 +80,7 @@ export const treatments: Treatment[] = [
   {
     slug: "kids-dentistry",
     title: "Kids Dentistry",
-    img: "/treatments/kids.jpg",
+    img: `${import.meta.env.BASE_URL}treatments/kids.jpg`,
     short: "Gentle, child-friendly care from the very first tooth.",
     long: [
       "It is always advised to start taking care of your baby's teeth in the very early stages of their life. This includes setting an oral hygiene routine and regular visits to a paediatric dentist.",
@@ -90,7 +90,7 @@ export const treatments: Treatment[] = [
   {
     slug: "laser-dentistry",
     title: "Laser Dentistry",
-    img: "/treatments/laser.jpg",
+    img: `${import.meta.env.BASE_URL}treatments/laser.jpg`,
     short: "Comfortable, precise treatment using advanced laser technology.",
     long: [
       "Laser dentistry is the use of lasers to treat a number of different dental conditions. It potentially offers a more comfortable treatment option for many dental procedures involving hard or soft tissue compared to drills and other non-laser tools.",
@@ -100,7 +100,7 @@ export const treatments: Treatment[] = [
   {
     slug: "mouth-ulcers",
     title: "Mouth Ulcers",
-    img: "/treatments/ulcers.jpg",
+    img: `${import.meta.env.BASE_URL}treatments/ulcers.jpg`,
     short: "Painful lesions in the mouth — diagnosed and treated quickly.",
     long: [
       "Mouth ulcers, commonly known as canker sores, are painful lesions in the mouth or at the base of the gums or inside cheeks or lips. In scientific terms, it is the loss of tissue lining in the mouth.",
@@ -110,7 +110,7 @@ export const treatments: Treatment[] = [
   {
     slug: "preventive-dentistry",
     title: "Preventive Dentistry",
-    img: "/treatments/preventive.jpg",
+    img: `${import.meta.env.BASE_URL}treatments/preventive.jpg`,
     short: "Routine care that keeps your smile healthy for life.",
     long: [
       "The main aim is to avoid cavities, gum infections, enamel wear, tooth loss and more. With the advent of years of refined diet, we have become more susceptible to oral diseases and hence maintaining them has become extremely important.",
@@ -120,7 +120,7 @@ export const treatments: Treatment[] = [
   {
     slug: "root-canal-treatment",
     title: "Root Canal Treatment",
-    img: "/treatments/rct.jpg",
+    img: `${import.meta.env.BASE_URL}treatments/rct.jpg`,
     short: "Save and restore an infected tooth with painless endodontic treatment.",
     long: [
       "The outer portion of a tooth is a three-layered structure. In case the tooth decay reaches the third layer and causes inflammation or infection of the pulp, an RCT or endodontic treatment is needed.",
@@ -130,7 +130,7 @@ export const treatments: Treatment[] = [
   {
     slug: "smile-makeover",
     title: "Smile Makeover",
-    img: "/treatments/makeover.jpg",
+    img: `${import.meta.env.BASE_URL}treatments/makeover.jpg`,
     short: "A complete cosmetic transformation tailored to your face and personality.",
     long: [
       "The smile is a reflection of one's oral health! For a smile-makeover, beautifully aligned teeth with healthy gums is an absolute necessity.",
@@ -140,7 +140,7 @@ export const treatments: Treatment[] = [
   {
     slug: "teeth-whitening",
     title: "Teeth Whitening",
-    img: "/treatments/whitening.jpg",
+    img: `${import.meta.env.BASE_URL}treatments/whitening.jpg`,
     short: "Remove stains and restore the natural brightness of your teeth.",
     long: [
       "Teeth whitening is a process of removing stains from the tooth surface and restoring the natural colour of the teeth. Whitening is a one-time procedure performed by a dentist.",
@@ -150,7 +150,7 @@ export const treatments: Treatment[] = [
   {
     slug: "wisdom-teeth-removal",
     title: "Wisdom Teeth Removal",
-    img: "/treatments/wisdom.jpg",
+    img: `${import.meta.env.BASE_URL}treatments/wisdom.jpg`,
     short: "Safe extraction of misaligned or impacted third molars.",
     long: [
       "Wisdom teeth — often known as third molars — are the last teeth to erupt. The problem with third molars is that in case they do not erupt properly or are misaligned, they would need to be extracted.",

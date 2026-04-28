@@ -36,11 +36,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
-      - name: Build
-        run: pnpm run build
+      - name: Build miswak-dental
+        run: cd artifacts/miswak-dental && pnpm run build
         env:
           PORT: 3000
           BASE_PATH: /Miswak-dental/
+
+      - name: List build output
+        run: ls -la artifacts/miswak-dental/dist/
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
